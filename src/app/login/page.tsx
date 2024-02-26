@@ -49,6 +49,21 @@ export default function Login({ searchParams }: { searchParams: { message: strin
     return redirect("/login?message=Check email to continue sign in process")
   }
 
+  const signInWithGithub = async () => {
+    "use server"
+
+    const supabase = createClient()
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: "github",
+    })
+    console.log(data, error)
+    if (error) {
+      return redirect("/login?message=Could not authenticate user")
+    }
+
+    return redirect(data?.url)
+  }
+
   return (
     <div className="flex w-full flex-1 flex-col justify-center gap-2 px-8 sm:max-w-md">
       <Link
@@ -115,6 +130,14 @@ export default function Login({ searchParams }: { searchParams: { message: strin
         {searchParams?.message && (
           <p className="bg-foreground/10 text-foreground mt-4 p-4 text-center">{searchParams.message}</p>
         )}
+      </form>
+      <form className="animate-in text-foreground flex w-full flex-1 flex-col justify-center gap-2">
+        <SubmitButton
+          formAction={signInWithGithub}
+          className="bg-foreground/10 text-foreground mb-2 rounded-md border px-4 py-2"
+        >
+          Sign In with GitHub
+        </SubmitButton>
       </form>
     </div>
   )
